@@ -23,18 +23,22 @@ initialize_cache() {
 }
 
 create_cert() {
-	if [ ! -f /etc/squid-cert/private.pem ]; then
+	if [ ! -f /etc/squid-cert/squid.key ] || \
+	   [ ! -f /etc/squid-cert/squid.crt ]; then
 		echo "Creating certificate..."
-		openssl req -new -newkey rsa:2048 -sha256 -days 3650 -nodes -x509 \
-			-extensions v3_ca -keyout /etc/squid-cert/private.pem \
-			-out /etc/squid-cert/private.pem \
-			-subj "/CN=$CN/O=$O/OU=$OU/C=$C" -utf8 -nameopt multiline,utf8
+		# openssl req -new -newkey rsa:2048 -sha256 -days 3650 -nodes -x509 \
+		# 	-extensions v3_ca -keyout /etc/squid-cert/squid.key \
+		# 	-out /etc/squid-cert/squid.crt \
+		# 	-subj "/CN=$CN/O=$O/OU=$OU/C=$C" -utf8 -nameopt multiline,utf8
 
-		openssl x509 -in /etc/squid-cert/private.pem \
-			-outform DER -out /etc/squid-cert/CA.der
+                openssl genrsa -out /etc/squid-cert/squid.key 4096
+                openssl req -x509 -new -nodes -subj "/CN=$CN/O=$O/OU=$OU/C=$C" \
+                    -key /etc/squid-cert/squid.key -sha256 -days 3650 -out /etc/squid-cert/squid.crt
+		# openssl x509 -in /etc/squid-cert/private.pem \
+		# 	-outform DER -out /etc/squid-cert/CA.der
 
-		openssl x509 -inform DER -in /etc/squid-cert/CA.der \
-			-out /etc/squid-cert/CA.pem
+		# openssl x509 -inform DER -in /etc/squid-cert/CA.der \
+		# 	-out /etc/squid-cert/CA.pem
 	else
 		echo "Certificate found..."
 	fi

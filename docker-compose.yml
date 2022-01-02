@@ -1,11 +1,17 @@
 version: "3"
 services:
-  squid-alpine-ssl:
-    image: alatas/squid-alpine-ssl:latest
+  squid:
+    image: shnee/squid:mvp2
+    container_name: squid
+    network_mode: bridge
     environment:
-      - CN=squid.local
-      - O=squid
-      - OU=squid
+      - VIRTUAL_HOST=squid.shnee.net
+      - VIRTUAL_PORT=4128
+      - NETWORK_ACCESS=internal
+      - TZ=America/New_York
+      - CN=squid.shnee.net
+      - O="Well Done. Systems"
+      - OU=""
       - C=US
     ports:
       - "3128:3128"
@@ -15,4 +21,4 @@ services:
       - ./conf/squid.conf:/etc/squid/squid.conf
       - ./cache:/var/cache
       - ./cert:/etc/squid-cert
-    restart: always
+    restart: unless-stopped
